@@ -30,3 +30,43 @@ exports.getPhotoById = async (req, res) => {
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
+
+exports.getUserPhotos = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { data } = await axios.get(
+      `${url}/users/${username}/photos?client_id=${key}`
+    );
+
+    const photos = data.map((photo) => photo.urls.raw);
+    // res.status(200).json({
+    //   id: data[0].id,
+    //   username: data[0].user.username,
+    //   description: data.description
+    //     ? data.description
+    //     : 'No description provided',
+    //   photos,
+    // });
+
+    const userPhoto = data.map((info) => {
+      return {
+        id: info.id,
+        username: info.user.username,
+        description: info.description
+          ? info.description
+          : 'No description provided',
+        url: photos,
+      };
+    });
+
+    res.status(200).json({ userPhoto });
+  } catch (error) {
+    console.log(error.response);
+
+    res.status(error.response.status).json({
+      status: error.response.status,
+      message: error.message,
+      stack: error.stack,
+    });
+  }
+};

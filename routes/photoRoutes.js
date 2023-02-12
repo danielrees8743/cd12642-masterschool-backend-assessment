@@ -7,4 +7,6 @@ router.get('/', photoController.getAllPhotos);
 
 router.get('/:id', photoController.getPhotoById);
 
+router.get('/user/:username', photoController.getUserPhotos);
+
 module.exports = router;
