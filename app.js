@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const colors = require('colors');
 
 const photoRouter = require('./routes/photoRoutes');
 
@@ -24,5 +25,5 @@ app.use('/api/photos', photoRouter);
 
 //* Server & DB connection
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
+  console.log(colors.italic.cyan(`Listening on port ${PORT}`));
 });
