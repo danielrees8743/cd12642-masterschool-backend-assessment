@@ -2,17 +2,19 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const DBconnection = require('./config/db');
 
 const photoRouter = require('./routes/photoRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 //* App config
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 //* Middleware
+dotenv.config({ path: '.env' });
 app.use(express.json());
 app.use(morgan('dev'));
-dotenv.config({ path: './env' });
 
 //* Routes
 app.get('/', (req, res) => {
@@ -22,8 +24,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/photos', photoRouter);
+app.use('/api/users', userRoutes);
 
 //* Server & DB connection
 app.listen(PORT, () => {
+  DBconnection();
   console.log(colors.italic.cyan(`Listening on port ${PORT}`));
 });
