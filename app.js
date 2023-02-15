@@ -8,11 +8,11 @@ const photoRouter = require('./routes/photoRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 //* App config
+dotenv.config({ path: '.env' });
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 //* Middleware
-dotenv.config({ path: '.env' });
 app.use(express.json());
 app.use(morgan('dev'));
 

@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
 const util = require('util');
-dotenv.config();
 
 //* Hash the password with the salt rounds of 10
 exports.hashPassword = async (password) => {

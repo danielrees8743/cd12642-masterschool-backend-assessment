@@ -1,8 +1,5 @@
 //Require axios to make API calls
 const axios = require('axios');
-const dotenv = require('dotenv');
-
-dotenv.config({ path: '.env' });
 
 const url = process.env.UNSPLASH_API_URL;
 const key = process.env.UNSPLASH_ACCESS_KEY;
@@ -10,7 +7,13 @@ const key = process.env.UNSPLASH_ACCESS_KEY;
 exports.getAllPhotos = async (req, res) => {
   try {
     const { data } = await axios.get(`${url}/photos?client_id=${key}`);
-    const photos = data.map((photo) => photo.urls.raw);
+    // const photos = data.map((photo) => photo.urls.raw);
+    const photos = data.map((photo) => {
+      return {
+        photo: photo.urls.raw,
+        id: photo.id,
+      };
+    });
     res.status(200).json({ photos });
     // res.status(200).json({ data });
   } catch (error) {
@@ -47,10 +50,13 @@ exports.getUserPhotos = async (req, res) => {
         url: user.urls.raw,
       };
     });
+
     res.status(200).json({ userDetails });
     // res.status(200).json({ data });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Server error. Please try again later.' });
+    res.status(500).json({
+      error: error,
+    });
   }
 };

@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       username,
       email,
-      password: await hashPassword(password),
+      password /*await hashPassword(password)*/,
     });
 
     res.status(201).json({ user });
@@ -45,7 +45,9 @@ exports.login = async (req, res) => {
       res.status(400);
       throw new Error('Please fill in all fields');
     }
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email })
+      .select('+password')
+      .select('-__v');
 
     //- if the email or password is incorrect the error will be thrown
     if (!user || !(await comparePassword(password, user.password))) {
@@ -77,7 +79,7 @@ exports.getMe = async (req, res) => {
   const token = await verifyToken(req.headers.authorization.split(' ')[1]);
   console.log(token._id);
   try {
-    const user = await User.findById(token);
+    const user = await User.findById(token).select('-__v');
     res.status(200).json({ user });
   } catch (error) {
     res.status(400).json({ message: error.message });

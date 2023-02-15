@@ -9,8 +9,6 @@ const DB = process.env.MONGO_URL.replace(
   '<password>',
   process.env.MONGO_PASSWORD
 );
-// const DB_PASSWORD = process.env.MONGO_PASSWORD;
-// console.log(DB, DB_PASSWORD);
 
 const DBConnection = async () => {
   try {
@@ -18,7 +16,8 @@ const DBConnection = async () => {
     console.log(colors.yellow.italic(`Connected to MongoDB`));
     return db;
   } catch (error) {
-    console.log(`Error connecting to MongoDB`);
+    console.log(colors.red(`${error.message}`));
+    process.exit(1);
   }
 };
 
