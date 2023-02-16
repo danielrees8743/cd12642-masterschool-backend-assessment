@@ -6,6 +6,7 @@ const DBconnection = require('./config/db');
 
 const photoRouter = require('./routes/photoRoutes');
 const userRoutes = require('./routes/userRoutes');
+const favoriteRoutes = require('./routes/favoritesRoutes');
 
 //* App config
 dotenv.config({ path: '.env' });
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/photos', photoRouter);
 app.use('/api/users', userRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 //* Server & DB connection
 app.listen(PORT, () => {
