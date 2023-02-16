@@ -23,6 +23,24 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.model('User', userSchema);
+//* Encrypt password using bcrypt
+userSchema.pre('save', async function (next) {
+  // Only run this function if password was actually modified
+  if (!this.isModified('password')) return next();
 
-module.exports = User;
+  // Hash the password with cost of 10
+  this.password = await bcrypt.hash(this.password, 10);
+  // Remove the passwordConfirm field from the database N/A
+  // this.passwordConfirm = undefined;
+  next();
+});
+
+//* Compare the password with the hashed password
+userSchema.methods.comparePassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+module.exports = mongoose.model('User', userSchema);
