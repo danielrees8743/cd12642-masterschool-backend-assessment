@@ -6,11 +6,8 @@ const router = express.Router();
 
 router
   .route('/')
+  .get(authMiddleware.verifyToken, favoritesController.getFavorites)
   .post(authMiddleware.verifyToken, favoritesController.addToFavorites)
-  .get(authMiddleware.verifyToken, favoritesController.getFavorites);
-
-router
-  .route('/:id')
   .delete(authMiddleware.verifyToken, favoritesController.deleteFromFavorites)
   .patch(authMiddleware.verifyToken, favoritesController.updateFavorites);
 

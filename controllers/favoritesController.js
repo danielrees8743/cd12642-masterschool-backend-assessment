@@ -2,98 +2,89 @@
 const asyncHandler = require('express-async-handler');
 const FavoritePhoto = require('../models/favoritePhotoModel');
 
-// POST /api/favorites
-// Add photo to favorites
-// Private
+//- POST /api/favorites
+//- Add photo to favorites
+//- Private
 exports.addToFavorites = asyncHandler(async (req, res) => {
   const { user, photoUrl, description, username, explanation } = req.body;
-  console.log(user, photoUrl, description, username, explanation);
-  try {
-    const newPhoto = await FavoritePhoto.create({
-      user,
-      photoUrl,
-      description,
-      username,
-      explanation,
-    });
 
-    res.status(200).json({
-      newPhoto,
-      message: 'Added to you favorites',
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Server error. Please try again later.',
-    });
+  if (!user || !photoUrl || !description || !username || !explanation) {
+    res.status(400);
+    throw new Error('Please make sure that all fields are completed');
   }
+
+  const newPhoto = await FavoritePhoto.create({
+    user,
+    photoUrl,
+    description,
+    username,
+    explanation,
+  });
+
+  res.status(200).json({ Message: 'Added to Favorites', newPhoto });
 });
 
-// GET /api/favorites
-// Get all favorites
-// Private
+//- GET /api/favorites
+//- Get all favorites
+//- Private
 exports.getFavorites = asyncHandler(async (req, res) => {
-  try {
-    const favorites = await FavoritePhoto.find({ user: req.user._id });
-    res.status(200).json({ favorites });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Server error. Please try again later.',
-    });
-  }
+  const favorites = await FavoritePhoto.find({ user: req.user._id }).select(
+    '-__v'
+  );
+
+  res.status(200).json({ favorites });
 });
 
-// DELETE /api/favorites/:id
-// Delete photo from favorites
-// Private
+//- DELETE /api/favorites/:id
+//- Delete photo from favorites
+//- Private
 exports.deleteFromFavorites = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  console.log(id);
-  try {
-    const photo = await FavoritePhoto.findOneAndDelete(id);
-    if (photo) {
-      await photo.remove();
-      res.status(204).json({
-        message: 'Photo removed from favorites',
-      });
-    } else {
-      res.status(404).json({
-        message: 'Photo not found',
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Server error. Please try again later.',
-    });
+  const { id } = req.body;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: 'Please make sure that all fields are completed' });
   }
+  const photo = await FavoritePhoto.findByIdAndDelete(id);
+  if (!photo)
+    return res.status(404).json({
+      message: 'Opps, Could not delete favorite 🥹, it could not be found',
+    });
+
+  //* This should be 204, but 204 would not display anything in the response body. So I used 200 to show a success message.
+  res.status(200).json({ message: 'Removed from favorites' });
 });
 
-// POST /api/favorites/:id
-// Update photo in favorites
-// Private
+//- POST /api/favorites/:id
+//- Update photo in favorites
+//- Private
 exports.updateFavorites = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const favorite = await FavoritePhoto.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-    console.log(favorite);
-    if (!favorite) {
-      res.status(404).json({
-        message: 'Photo not found',
-      });
-    }
-    res.status(200).json({
-      favorite,
-      message: 'Photo updated',
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: 'Server error. Please try again later.',
+  const { id, explanation } = req.body;
+  if (!id || !explanation) {
+    return res.status(400).json({
+      message: 'Please add the ID AND explanation to update your favorite 💔',
     });
   }
+
+  console.log('update', req.body);
+
+  const favorite = await FavoritePhoto.findByIdAndUpdate(
+    id,
+    {
+      explanation,
+    },
+    {
+      new: true,
+    }
+  ).select('-__v');
+
+  if (!favorite) {
+    res.status(404);
+    throw new Error('Opps, Could not update your favorite 😭');
+  }
+  res.status(200).json({
+    message: 'Whoop, Whoop! Updated your favorite photo 😁',
+
+    favorite,
+  });
 });
