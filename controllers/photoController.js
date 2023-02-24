@@ -14,7 +14,6 @@ exports.getAllPhotos = async (req, res) => {
     const photos = data.map((photo) => {
       return {
         photo: photo.urls.raw,
-        id: photo.id,
       };
     });
     res.status(200).json({ photos });
