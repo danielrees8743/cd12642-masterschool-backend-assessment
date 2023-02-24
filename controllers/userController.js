@@ -1,7 +1,6 @@
 //Import asyncHandler so that we can use it in our routes to trigger error handling middleware
 const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
-const { hashPassword } = require('../middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 
 const signinToken = (id, tokenTime) => {
@@ -65,21 +64,6 @@ exports.login = async (req, res) => {
     const token = signinToken(user._id, process.env.JWT_EXPIRES_IN);
     user.password = undefined;
     res.status(200).json({ user, token });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-//- POST /api/users/logout
-//- Logout a user
-//- Public
-exports.logout = async (req, res) => {
-  console.log(req.headers);
-  try {
-    const token = req.headers.authorization.split(' ')[1];
-    console.log(token);
-    jwt.blacklist(token);
-    res.status(200).json({ message: 'User logged out' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
