@@ -4,12 +4,15 @@ const User = require('../models/userModel');
 const { hashPassword } = require('../middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 
-const {
-  signinToken,
-  comparePassword,
-  verifyToken,
-} = require('../middleware/authMiddleware');
+const signinToken = (id, tokenTime) => {
+  return jwt.sign({ _id: id }, process.env.JWT_SECRET, {
+    expiresIn: tokenTime,
+  });
+};
 
+//- POST /api/users/register
+//- Register a new user
+//- Public
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -36,6 +39,9 @@ exports.register = async (req, res) => {
   }
 };
 
+//- POST /api/users/login
+//- Login a user
+//- Public
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -50,13 +56,13 @@ exports.login = async (req, res) => {
       .select('-__v');
 
     //- if the email or password is incorrect the error will be thrown
-    if (!user || !(await comparePassword(password, user.password))) {
+    if (!user || !(await user.comparePassword(password, user.password))) {
       res.status(400);
       throw new Error('Incorrect email or password');
     }
 
     //- if all the details are correct the user is logged in and a token will be issued
-    const token = signinToken(user._id);
+    const token = signinToken(user._id, process.env.JWT_EXPIRES_IN);
     user.password = undefined;
     res.status(200).json({ user, token });
   } catch (error) {
@@ -64,10 +70,14 @@ exports.login = async (req, res) => {
   }
 };
 
+//- POST /api/users/logout
+//- Logout a user
+//- Public
 exports.logout = async (req, res) => {
   console.log(req.headers);
   try {
     const token = req.headers.authorization.split(' ')[1];
+    console.log(token);
     jwt.blacklist(token);
     res.status(200).json({ message: 'User logged out' });
   } catch (error) {
@@ -75,13 +85,14 @@ exports.logout = async (req, res) => {
   }
 };
 
+//- GET /api/users/me
+//- Get current user
+//- Private
 exports.getMe = async (req, res) => {
-  const token = await verifyToken(req.headers.authorization.split(' ')[1]);
-  console.log(token._id);
   try {
-    const user = await User.findById(token).select('-__v');
-    res.status(200).json({ user });
+    res.status(200).json({ user: req.user });
   } catch (error) {
+    console.log(error);
     res.status(400).json({ message: error.message });
   }
 };

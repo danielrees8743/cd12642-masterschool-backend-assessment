@@ -4,6 +4,9 @@ const axios = require('axios');
 const url = process.env.UNSPLASH_API_URL;
 const key = process.env.UNSPLASH_ACCESS_KEY;
 
+// GET /api/photos
+// Get all favorites
+// Public
 exports.getAllPhotos = async (req, res) => {
   try {
     const { data } = await axios.get(`${url}/photos?client_id=${key}`);
@@ -23,6 +26,9 @@ exports.getAllPhotos = async (req, res) => {
   }
 };
 
+// GET /api/photos/:id
+// Get photo by id
+// Public
 exports.getPhotoById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -34,6 +40,9 @@ exports.getPhotoById = async (req, res) => {
   }
 };
 
+// GET /api/photos/user/:username
+// Get photo by id
+// Public
 exports.getUserPhotos = async (req, res) => {
   try {
     const { username } = req.params;
@@ -52,7 +61,6 @@ exports.getUserPhotos = async (req, res) => {
     });
 
     res.status(200).json({ userDetails });
-    // res.status(200).json({ data });
   } catch (error) {
     console.log(error);
     res.status(500).json({
